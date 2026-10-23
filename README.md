@@ -1,53 +1,48 @@
-# MediInsight React Frontend
+# MediInsight Backend
 
-A premium React + TypeScript frontend for the existing MediInsight FastAPI + MySQL project. It uses synthetic/demo data only and labels threshold indicators as illustrative, not clinically validated.
+FastAPI backend for the MediInsight healthcare analytics prototype. Uses SQLAlchemy and MySQL, and includes a synthetic data seed script plus optional Streamlit dashboard files.
 
 ## Requirements
-- Node.js 20+ recommended
-- Existing MediInsight FastAPI API running at `http://127.0.0.1:8000`
 
-## Run locally (Windows PowerShell)
-1. Extract this folder.
-2. Open PowerShell in the `medinsight-react` folder.
-3. Install dependencies:
-   ```powershell
-   npm install
-   ```
-4. Create your local environment file:
-   ```powershell
-   Copy-Item .env.example .env
-   ```
-5. Start the React development server:
-   ```powershell
-   npm run dev
-   ```
-6. Open the Local URL Vite prints, usually `http://localhost:5173`.
+- Python 3.10+ recommended
+- MySQL Server
 
-Keep the FastAPI server running separately:
-```powershell
-cd C:\Users\naras\MEDINSIGHT
-.\venv\Scripts\Activate.ps1
-$env:MEDINSIGHT_DB_PASSWORD = Read-Host "Enter your MySQL password"
+## Install and run (Windows CMD)
+
+```cmd
+cd path\to\MediInsight\backend
+python -m venv venv
+venv\Scripts\activate.bat
+pip install -r requirements.txt
+set MEDINSIGHT_DB_PASSWORD=YOUR_MYSQL_PASSWORD
 python -m uvicorn api:app --reload
 ```
 
-## API configuration
-The frontend reads `VITE_API_BASE_URL`. Set it in `.env` before starting Vite. For a deployed frontend, set it to the public HTTPS URL of your deployed FastAPI service.
+Configure `MEDINSIGHT_DB_USER`, `MEDINSIGHT_DB_HOST`, and `MEDINSIGHT_DB_PORT` in the same CMD window if needed. The configured database name is `medinsight_db`.
 
-## Backend expectations
-This frontend calls the existing endpoints:
-- `GET /analytics/overview`
-- `GET /patients`
-- `GET /visits`
-- `GET /measurements`
-- `GET /analytics/departments`
-- `GET /analytics/monthly-visits`
-- `GET /indicators/summary`
-- `POST /patients`
+- API root: http://127.0.0.1:8000/
+- Health check: http://127.0.0.1:8000/health
+- Interactive docs: http://127.0.0.1:8000/docs
 
-Responses are expected to use `{ "data": ... }` for list/overview endpoints, consistent with the current Streamlit frontend. The Add Patient form posts `patient_name`, `age`, `sex`, `department`, `visit_date`, `visit_type`, `length_of_stay_days`, `heart_rate_bpm`, `temperature_c`, and `systolic_bp_mmhg`.
+## Main endpoints
 
-If the browser console reports a CORS error, configure CORS in FastAPI to allow the Vite origin `http://localhost:5173` for local development and the deployed frontend domain for production. Do not use wildcard origins with credentials.
+`GET /health`, `GET /patients`, `GET /patients/{patient_id}`, `POST /patients`, `GET /visits`, `GET /measurements`, `GET /analytics/overview`, `GET /analytics/departments`, `GET /analytics/monthly-visits`, `GET /indicators/summary`.
 
-## Safety
-All records in this prototype should remain synthetic. Do not use this demo as a clinical decision-support tool. The threshold flags are illustrative only.
+## Seed synthetic demo data
+
+Only use a demo database. Review the schema first.
+
+```cmd
+set MEDINSIGHT_DB_PASSWORD=YOUR_MYSQL_PASSWORD
+python seed_demo.py
+```
+
+The indicator thresholds are illustrative only, not clinical assessments. Do not use real patient data.
+
+## Optional Streamlit dashboards
+
+`app.py`, `app_integrated.py`, and `test_streamlit.py` are included as optional Streamlit files. Their API/database configuration may need adjustment depending on how you run them.
+
+## Security
+
+Never commit database passwords, `.env` files, API tokens, private keys, database dumps, or real patient data. Add authentication and authorization before exposing patient-related endpoints publicly.
